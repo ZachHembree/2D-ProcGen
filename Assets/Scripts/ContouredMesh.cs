@@ -33,7 +33,7 @@ public class ContouredMesh
 
     public void GetMesh()
     {
-        GetGeometry(drawContours, drawSimple);
+        GetGeometry();
 
         // Really slow
         if (uniqueVertcies)
@@ -42,18 +42,18 @@ public class ContouredMesh
         SetMesh();
     }
 
-    private void GetGeometry(bool contours, bool simple)
+    private void GetGeometry()
     {
         verticies = new List<Vector3>();
         triangles = new List<int>();
 
-        if (simple)
+        if (drawSimple)
             simpleGeometry = new bool[meshWidth, meshHeight];
 
-        if (contours)
+        if (drawContours)
             SquareGrid = new List<MarchingSquare>();
 
-        if (contours || simple)
+        if (drawContours || drawSimple)
         {
             for (int a = 0; a < meshWidth; a++)
             {
@@ -66,10 +66,10 @@ public class ContouredMesh
 
                     if (pointA && pointB && pointC && pointD)
                     {
-                        if (simple)
+                        if (drawSimple)
                             simpleGeometry[a, b] = true;
                     }
-                    else if (contours)
+                    else if (drawContours)
                     {
                         Vector3 pos = new Vector3((a * squareSize) - (width / 2), 0, (b * squareSize) - (height / 2));
                         SquareGrid.Add(new MarchingSquare(pos, squareSize, pointA, pointB, pointC, pointD));
@@ -78,10 +78,10 @@ public class ContouredMesh
             }
         }
 
-        if (simple)
+        if (drawSimple)
             GetSimpleGeometry();
 
-        if (contours)
+        if (drawContours)
             GetVerticies();
     }
 
