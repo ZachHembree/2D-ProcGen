@@ -75,11 +75,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\ContouredMesh.cs" />
-    <Compile Include="Assets\MapGeneration.cs" />
     <Compile Include="Assets\MarchingSquares\MarchingSquare.cs" />
     <Compile Include="Assets\MarchingSquares\MarchingSquareMesh.cs" />
     <Compile Include="Assets\MarchingSquares\MarhingSquareBase.cs" />
+    <Compile Include="Assets\Scripts\ContouredMesh.cs" />
+    <Compile Include="Assets\Scripts\MapGeneration.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
