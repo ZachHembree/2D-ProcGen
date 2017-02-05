@@ -24,7 +24,7 @@ public partial class MarchingSquare
         nodes[3] = new Node(false, true, position, size);
         nodes[5] = new Node(true, false, position, size);
         nodes[7] = new Node(true, true, position, size);
-
+        
         SetAllMidpoints(false);
     }
 

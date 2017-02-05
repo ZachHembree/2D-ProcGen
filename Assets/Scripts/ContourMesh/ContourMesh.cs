@@ -1,26 +1,20 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public struct MapData
+public class ContourMesh
 {
-    public int x, z;
-}
-
-public class ContouredMesh
-{
-    private Mesh mesh;
+    public MeshData mesh;
     private List<MarchingSquare> SquareGrid;
     private List<Vector3> verticies;
     private List<int> triangles;
-    private int meshWidth, meshHeight;
+    private int meshWidth, meshHeight, xOffset, zOffset;
     private bool[,] map, simpleGeometry;
     private float width, height, squareSize;
+    private bool drawContours = true, drawSimple = true, uniqueVertcies = true;
 
-    public bool drawContours = true, drawSimple = true, uniqueVertcies = true;
-
-    public ContouredMesh(Mesh _mesh, bool[,] _map, float _squareSize)
+    public ContourMesh(bool[,] _map, float _squareSize, bool _drawContours = true, bool _drawSimple = true, bool _uniqueVerticies = true, int _xOffset = 0, int _zOffset = 0)
     {
-        mesh = _mesh;
+        mesh = new MeshData();
         map = _map;
         squareSize = _squareSize;
 
@@ -29,9 +23,16 @@ public class ContouredMesh
 
         width = meshWidth * squareSize;
         height = meshHeight * squareSize;
+
+        drawContours = _drawContours;
+        drawSimple = _drawSimple;
+        uniqueVertcies = _uniqueVerticies;
+
+        xOffset = _xOffset;
+        zOffset = _zOffset;
     }
 
-    public void GetMesh()
+    public MeshData GetMeshData()
     {
         GetGeometry();
 
@@ -39,7 +40,12 @@ public class ContouredMesh
         if (uniqueVertcies)
             GetUniqueVerticies();
 
-        SetMesh();
+       // Debug.Log("Verticies: " + verticies.Count);
+
+        mesh.verticies = verticies;
+        mesh.triangles = triangles;
+
+        return mesh;
     }
 
     private void GetGeometry()
@@ -71,7 +77,7 @@ public class ContouredMesh
                     }
                     else if (drawContours)
                     {
-                        Vector3 pos = new Vector3((a * squareSize) - (width / 2), 0, (b * squareSize) - (height / 2));
+                        Vector3 pos = new Vector3(((xOffset + a) * squareSize) - (width / 2), 0, ((b + zOffset) * squareSize) - (height / 2));
                         SquareGrid.Add(new MarchingSquare(pos, squareSize, pointA, pointB, pointC, pointD));
                     }
                 }
@@ -82,7 +88,7 @@ public class ContouredMesh
             GetSimpleGeometry();
 
         if (drawContours)
-            GetVerticies();
+            GetContourGeometry();
     }
 
     private void GetSimpleGeometry()
@@ -118,13 +124,11 @@ public class ContouredMesh
                     else                  
                         workspace.z = b;
                     
-
                     zEnd.Add(workspace);
                     newZ = true;
                 }
 
-
-                if (simpleGeometry[a, b] && b == simpleGeometry.GetLength(1) - 1 && newZ)
+                if (simpleGeometry[a, b] && b == simpleGeometry.GetLength(1) - 1 && !simpleGeometry[a, b - 1])
                 {
                     workspace.x = a;
                     workspace.z = b;
@@ -145,8 +149,8 @@ public class ContouredMesh
 
         for (int n = 0; n < zStart.Count; n++)
         {
-            Vector3 startCenter = new Vector3(((zStart[n].x * squareSize) - (width / 2)), 0, (zStart[n].z * squareSize) - (height / 2));
-            Vector3 endCenter = new Vector3(((zEnd[n].x * squareSize) - (width / 2)), 0, (zEnd[n].z * squareSize) - (height / 2));
+            Vector3 startCenter = new Vector3((((zStart[n].x + xOffset) * squareSize) - (width / 2)), 0, ((zStart[n].z  + zOffset) * squareSize) - (height / 2));
+            Vector3 endCenter = new Vector3((((zEnd[n].x + xOffset) * squareSize) - (width / 2)), 0, ((zEnd[n].z + zOffset) * squareSize) - (height / 2));
 
             a = new Vector3(startCenter.x - (squareSize / 2), 0, startCenter.z - (squareSize / 2));
             b = new Vector3(startCenter.x + (squareSize / 2), 0, startCenter.z - (squareSize / 2));
@@ -167,7 +171,7 @@ public class ContouredMesh
             GetTriangle(n, n + 2, n + 3);
         }
 
-        Debug.Log("Simple Verticies: " + rectangles.Count);
+        //Debug.Log("Simple Verticies: " + rectangles.Count);
     }
 
     private void GetTriangle(int a, int b, int c)
@@ -177,7 +181,7 @@ public class ContouredMesh
         triangles.Add(c);
     }
 
-    private void GetVerticies()
+    private void GetContourGeometry()
     {
         MeshData workspace = new MeshData();
 
@@ -198,7 +202,7 @@ public class ContouredMesh
         bool matchFound = false;
         uniqueVerticies.Add(verticies[0]);
 
-        Debug.Log("Unculled Verticies: " + verticies.Count);
+        //Debug.Log("Unculled Verticies: " + verticies.Count);
 
         for (int a = 1; a < verticies.Count; a++)
         {
@@ -223,17 +227,5 @@ public class ContouredMesh
         
         verticies = uniqueVerticies;
         triangles = updatedTriangles;
-    }
-
-    private void SetMesh()
-    {
-        mesh.Clear();
-
-        Debug.Log("Verticies: " + verticies.Count);
-        Debug.Log("Triangles: " + triangles.Count / 3);
-
-        mesh.vertices = verticies.ToArray();
-        mesh.triangles = triangles.ToArray();
-        mesh.RecalculateNormals();
     }
 }

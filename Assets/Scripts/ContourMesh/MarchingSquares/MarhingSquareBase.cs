@@ -1,17 +1,10 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-
-public struct MeshData
-{
-    public List<Vector3> verticies;
-    public List<int> triangles;
-}
+﻿using UnityEngine;
 
 public class Node
 {
     public Vector3 position;
     public bool active, isControlNode, vPos, hPos;
-    public float size, xDelta = 0, zDelta = 0;
+    private float size, xDelta = 0, zDelta = 0;
     public int vertexIndex;
 
     public Node(bool v, bool h, Vector3 p, float s, bool cNode = false, bool a = false)
